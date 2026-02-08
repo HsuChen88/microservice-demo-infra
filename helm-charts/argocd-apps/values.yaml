@@ -2,7 +2,7 @@
 # Controls which services/environments to deploy via GitOps
 
 # Git repository containing Helm charts
-repoURL: "https://github.com/hsuchen88/Mircroservice-Demo.git"
+repoURL: "https://github.com/HsuChen88/microservice-demo-infra.git"
 targetRevision: HEAD
 
 # ArgoCD project
