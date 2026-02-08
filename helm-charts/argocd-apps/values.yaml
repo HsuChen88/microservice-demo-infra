@@ -30,41 +30,41 @@ environments:
 services:
   postgres:
     enabled: true
-    chartPath: infra/helm-charts/postgres
+    chartPath: helm-charts/postgres
     hasEnvValues: false
   kafka:
     enabled: true
-    chartPath: infra/helm-charts/kafka
+    chartPath: helm-charts/kafka
     hasEnvValues: false
   submission:
     enabled: true
-    chartPath: infra/helm-charts/paper-submission
+    chartPath: helm-charts/paper-submission
     hasEnvValues: true
   catalog:
     enabled: true
-    chartPath: infra/helm-charts/paper-catalog
+    chartPath: helm-charts/paper-catalog
     hasEnvValues: true
   frontend:
     enabled: true
-    chartPath: infra/helm-charts/paper-frontend
+    chartPath: helm-charts/paper-frontend
     hasEnvValues: true
   istio-gateway:
     enabled: true
-    chartPath: infra/helm-charts/istio-gateway
+    chartPath: helm-charts/istio-gateway
     hasEnvValues: false
   prometheus:
     enabled: true
-    chartPath: infra/helm-charts/prometheus
+    chartPath: helm-charts/prometheus
     hasEnvValues: false
   grafana:
     enabled: true
-    chartPath: infra/helm-charts/grafana
+    chartPath: helm-charts/grafana
     hasEnvValues: false
   loki:
     enabled: true
-    chartPath: infra/helm-charts/loki
+    chartPath: helm-charts/loki
     hasEnvValues: false
   promtail:
     enabled: true
-    chartPath: infra/helm-charts/promtail
+    chartPath: helm-charts/promtail
     hasEnvValues: false
