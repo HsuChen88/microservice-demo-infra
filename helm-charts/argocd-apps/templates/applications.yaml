@@ -26,6 +26,7 @@ spec:
     targetRevision: {{ $.Values.targetRevision }}
     path: {{ $svc.chartPath }}
     helm:
+      releaseName: {{ $env.name }}-{{ $svcName }}
       {{- if $svc.hasEnvValues }}
       valueFiles:
         - values-{{ $env.name }}.yaml

@@ -2,9 +2,8 @@
 
 replicaCount: 1
 
-# Override the full name of resources (used for Service name, Deployment name, etc.)
-# Must match Istio VirtualService destination host
-fullnameOverride: "submission-service"
+# Override the chart name portion used in resource names
+nameOverride: "submission"
 
 image:
   repository: paper-submission
@@ -21,12 +20,12 @@ service:
 
 # Environment variables injected into the container
 env:
-  DB_HOST: postgres-primary
+  DB_HOST: dev-postgres-primary
   DB_PORT: "5432"
   DB_NAME: submission_db
   DB_USER: postgres
   DB_PASS: postgres
-  KAFKA_BOOTSTRAP: kafka:9092
+  KAFKA_BOOTSTRAP: dev-kafka:9092
 
 # Pod annotations (Prometheus scrape, Istio, etc.)
 podAnnotations:

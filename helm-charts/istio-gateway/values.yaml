@@ -1,6 +1,6 @@
 gateway:
   name: paper-demo-gateway
-  namespace: paper-demo
+  namespace: ""
   selector:
     istio: ingressgateway
   port: 80
@@ -10,7 +10,7 @@ gateway:
 
 virtualService:
   name: paper-demo-vs
-  namespace: paper-demo
+  namespace: ""
   hosts:
     - "*"
   routes:
@@ -18,23 +18,23 @@ virtualService:
         uri:
           prefix: /api/v1/submissions
       destination:
-        host: submission-service
+        host: dev-submission
         port: 8081
     - match:
         uri:
           prefix: /api/internal
       destination:
-        host: submission-service
+        host: dev-submission
         port: 8081
     - match:
         uri:
           prefix: /api/v1/catalog
       destination:
-        host: catalog-service
+        host: dev-catalog
         port: 8082
     - match:
         uri:
           prefix: /
       destination:
-        host: frontend-service
+        host: dev-frontend
         port: 8080

@@ -133,7 +133,7 @@ data:
       - name: infrastructure
         rules:
           - alert: PostgresPrimaryDown
-            expr: up{pod=~"postgres-primary.*"} == 0
+            expr: up{pod=~".*postgres-primary.*"} == 0
             for: 1m
             labels:
               severity: critical
@@ -143,7 +143,7 @@ data:
               description: "PostgreSQL Primary database pod is unreachable."
 
           - alert: PostgresCatalogDown
-            expr: up{pod=~"postgres-catalog.*"} == 0
+            expr: up{pod=~".*postgres-catalog.*"} == 0
             for: 1m
             labels:
               severity: critical

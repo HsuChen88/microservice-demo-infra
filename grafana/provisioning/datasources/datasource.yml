@@ -3,14 +3,14 @@ datasources:
   - name: Prometheus
     type: prometheus
     access: proxy
-    url: http://prometheus:9090
+    url: http://dev-prometheus:9090
     uid: prometheus
     isDefault: true
     editable: true
   - name: Loki
     type: loki
     access: proxy
-    url: http://loki:3100
+    url: http://dev-loki:3100
     uid: loki-datasource
     isDefault: false
     editable: true

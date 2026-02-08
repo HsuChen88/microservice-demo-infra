@@ -2,9 +2,8 @@
 
 replicaCount: 1
 
-# Override the full name of resources
-# Must match Istio VirtualService destination host
-fullnameOverride: "frontend-service"
+# Override the chart name portion used in resource names
+nameOverride: "frontend"
 
 image:
   repository: paper-frontend
