@@ -1,0 +1,322 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "grafana.fullname" . }}-datasource
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
+data:
+  datasource.yml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: {{ .Values.datasource.prometheusUrl }}
+        isDefault: true
+        editable: false
+      {{- if .Values.datasource.lokiEnabled }}
+      - name: Loki
+        type: loki
+        access: proxy
+        url: {{ .Values.datasource.lokiUrl }}
+        isDefault: false
+        editable: false
+        jsonData:
+          maxLines: 1000
+      {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "grafana.fullname" . }}-dashboard-provider
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
+data:
+  dashboard.yml: |
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "grafana.fullname" . }}-dashboards
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
+data:
+  paper-services.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "title": "Service Health",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "up{namespace=~\"$namespace\",pod=~\"submission.*\"}",
+              "legendFormat": "Submission"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
+              ],
+              "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+            }
+          },
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+        },
+        {
+          "title": "Catalog Health",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+          "targets": [
+            {
+              "expr": "up{namespace=~\"$namespace\",pod=~\"catalog.*\"}",
+              "legendFormat": "Catalog"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
+              ],
+              "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+            }
+          },
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+        },
+        {
+          "title": "Circuit Breaker State",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+          "targets": [
+            {
+              "expr": "catalog_circuit_breaker_state{namespace=~\"$namespace\"}",
+              "legendFormat": "CB State"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                { "type": "value", "options": { "0": { "text": "CLOSED", "color": "green" }, "1": { "text": "OPEN", "color": "red" }, "2": { "text": "HALF_OPEN", "color": "yellow" } } }
+              ],
+              "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 2 }, { "color": "red", "value": 1 }] }
+            }
+          },
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+        },
+        {
+          "title": "Active Alerts",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+          "targets": [
+            {
+              "expr": "count(ALERTS{alertstate=\"firing\"}) or vector(0)",
+              "legendFormat": "Firing"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
+            }
+          },
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+        },
+        {
+          "title": "Request Rate (Submission)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+          "targets": [
+            {
+              "expr": "rate(http_server_requests_seconds_count{namespace=~\"$namespace\",pod=~\"submission.*\"}[5m])",
+              "legendFormat": "{{`{{method}}`}} {{`{{uri}}`}} {{`{{status}}`}}"
+            }
+          ],
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+        },
+        {
+          "title": "Request Rate (Catalog)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+          "targets": [
+            {
+              "expr": "rate(catalog_requests_total{namespace=~\"$namespace\"}[5m])",
+              "legendFormat": "{{`{{method}}`}} {{`{{endpoint}}`}} {{`{{status}}`}}"
+            }
+          ],
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+        },
+        {
+          "title": "Error Rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+          "targets": [
+            {
+              "expr": "rate(catalog_requests_total{status=~\"5..\",namespace=~\"$namespace\"}[5m])",
+              "legendFormat": "catalog 5xx"
+            },
+            {
+              "expr": "rate(http_server_requests_seconds_count{status=~\"5..\",namespace=~\"$namespace\",pod=~\"submission.*\"}[5m])",
+              "legendFormat": "submission 5xx"
+            }
+          ],
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+        },
+        {
+          "title": "Request Latency P50 / P95 / P99",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, rate(catalog_request_latency_seconds_bucket{namespace=~\"$namespace\"}[5m]))",
+              "legendFormat": "catalog p50"
+            },
+            {
+              "expr": "histogram_quantile(0.95, rate(catalog_request_latency_seconds_bucket{namespace=~\"$namespace\"}[5m]))",
+              "legendFormat": "catalog p95"
+            },
+            {
+              "expr": "histogram_quantile(0.99, rate(catalog_request_latency_seconds_bucket{namespace=~\"$namespace\"}[5m]))",
+              "legendFormat": "catalog p99"
+            },
+            {
+              "expr": "histogram_quantile(0.50, rate(http_server_requests_seconds_bucket{namespace=~\"$namespace\",pod=~\"submission.*\"}[5m]))",
+              "legendFormat": "submission p50"
+            },
+            {
+              "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{namespace=~\"$namespace\",pod=~\"submission.*\"}[5m]))",
+              "legendFormat": "submission p95"
+            },
+            {
+              "expr": "histogram_quantile(0.99, rate(http_server_requests_seconds_bucket{namespace=~\"$namespace\",pod=~\"submission.*\"}[5m]))",
+              "legendFormat": "submission p99"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": { "unit": "s" }
+          },
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+        },
+        {
+          "title": "Kafka Events Consumed",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+          "targets": [
+            {
+              "expr": "rate(catalog_kafka_events_consumed_total{namespace=~\"$namespace\"}[5m])",
+              "legendFormat": "{{`{{status}}`}} events/s"
+            }
+          ],
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+        },
+        {
+          "title": "Kafka Events Total (Counter)",
+          "type": "stat",
+          "gridPos": { "h": 8, "w": 6, "x": 12, "y": 20 },
+          "targets": [
+            {
+              "expr": "catalog_kafka_events_consumed_total{namespace=~\"$namespace\",status=\"success\"}",
+              "legendFormat": "success"
+            },
+            {
+              "expr": "catalog_kafka_events_consumed_total{namespace=~\"$namespace\",status=\"error\"}",
+              "legendFormat": "error"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": { "steps": [{ "color": "green", "value": null }] }
+            }
+          },
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+        },
+        {
+          "title": "Circuit Breaker Timeline",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 6, "x": 18, "y": 20 },
+          "targets": [
+            {
+              "expr": "catalog_circuit_breaker_state{namespace=~\"$namespace\"}",
+              "legendFormat": "CB state"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "min": 0,
+              "max": 2,
+              "custom": { "fillOpacity": 30 }
+            }
+          },
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+        },
+        {
+          "title": "Prometheus Alerts",
+          "type": "table",
+          "gridPos": { "h": 6, "w": 24, "x": 0, "y": 28 },
+          "targets": [
+            {
+              "expr": "ALERTS{alertstate=\"firing\"}",
+              "legendFormat": "{{`{{alertname}}`}}",
+              "format": "table",
+              "instant": true
+            }
+          ],
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" }
+        },
+        {
+          "title": "Service Logs (Loki)",
+          "type": "logs",
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 34 },
+          "targets": [
+            {
+              "expr": "{namespace=~\"$namespace\",app=~\"paper-submission|paper-catalog|submission|catalog\"}",
+              "legendFormat": ""
+            }
+          ],
+          "datasource": { "type": "loki", "uid": "loki-datasource" },
+          "options": {
+            "showTime": true,
+            "showLabels": true,
+            "showCommonLabels": false,
+            "wrapLogMessage": true,
+            "sortOrder": "Descending",
+            "dedupStrategy": "none",
+            "enableLogDetails": true
+          }
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["paper-demo", "observability"],
+      "templating": {
+        "list": [
+          {
+            "name": "namespace",
+            "type": "custom",
+            "current": { "text": "dev", "value": "dev" },
+            "options": [
+              { "text": "dev", "value": "dev", "selected": true },
+              { "text": "test", "value": "test", "selected": false },
+              { "text": "prod", "value": "prod", "selected": false }
+            ]
+          }
+        ]
+      },
+      "time": { "from": "now-1h", "to": "now" },
+      "title": "Paper Services Dashboard",
+      "uid": "paper-services-k8s"
+    }

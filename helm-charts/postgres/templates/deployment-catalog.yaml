@@ -1,0 +1,70 @@
+{{- if .Values.catalog.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "postgres.fullname" . }}-catalog
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+    component: catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "postgres.catalogSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "postgres.catalogSelectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.catalog.user | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.catalog.password | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.catalog.database | quote }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: pgdata
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U {{ .Values.catalog.user }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U {{ .Values.catalog.user }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      volumes:
+        - name: init-sql
+          configMap:
+            name: {{ include "postgres.fullname" . }}-catalog-init
+        {{- if .Values.catalog.persistence.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "postgres.fullname" . }}-catalog-pvc
+        {{- else }}
+        - name: data
+          emptyDir: {}
+        {{- end }}
+{{- end }}

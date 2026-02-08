@@ -1,0 +1,36 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: paper-demo-vs
+  namespace: paper-demo
+spec:
+  hosts:
+    - "paper-demo.local"
+    - "*"
+  gateways:
+    - paper-demo-gateway
+  http:
+    - match:
+        - uri:
+            prefix: /api/v1/submissions
+      route:
+        - destination:
+            host: submission-service
+            port:
+              number: 8081
+    - match:
+        - uri:
+            prefix: /api/internal
+      route:
+        - destination:
+            host: submission-service
+            port:
+              number: 8081
+    - match:
+        - uri:
+            prefix: /api/v1/catalog
+      route:
+        - destination:
+            host: catalog-service
+            port:
+              number: 8082

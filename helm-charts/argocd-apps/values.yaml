@@ -1,0 +1,66 @@
+# ArgoCD Application configuration
+# Controls which services/environments to deploy via GitOps
+
+# Git repository containing Helm charts
+repoURL: "https://github.com/hsuchen88/Mircroservice-Demo.git"
+targetRevision: HEAD
+
+# ArgoCD project
+project: default
+
+# Environments to deploy
+environments:
+  - name: dev
+    namespace: dev
+    autoSync: true
+    selfHeal: true
+    prune: true
+  - name: test
+    namespace: test
+    autoSync: false
+    selfHeal: false
+    prune: false
+  - name: prod
+    namespace: prod
+    autoSync: false
+    selfHeal: false
+    prune: false
+
+# Services to deploy per environment
+services:
+  postgres:
+    enabled: true
+    chartPath: infra/helm-charts/postgres
+    hasEnvValues: false
+  kafka:
+    enabled: true
+    chartPath: infra/helm-charts/kafka
+    hasEnvValues: false
+  submission:
+    enabled: true
+    chartPath: infra/helm-charts/paper-submission
+    hasEnvValues: true
+  catalog:
+    enabled: true
+    chartPath: infra/helm-charts/paper-catalog
+    hasEnvValues: true
+  istio-gateway:
+    enabled: true
+    chartPath: infra/helm-charts/istio-gateway
+    hasEnvValues: false
+  prometheus:
+    enabled: true
+    chartPath: infra/helm-charts/prometheus
+    hasEnvValues: false
+  grafana:
+    enabled: true
+    chartPath: infra/helm-charts/grafana
+    hasEnvValues: false
+  loki:
+    enabled: true
+    chartPath: infra/helm-charts/loki
+    hasEnvValues: false
+  promtail:
+    enabled: true
+    chartPath: infra/helm-charts/promtail
+    hasEnvValues: false

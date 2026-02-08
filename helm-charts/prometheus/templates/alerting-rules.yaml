@@ -1,0 +1,154 @@
+{{- if .Values.alerting.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "prometheus.fullname" . }}-alerting-rules
+  labels:
+    {{- include "prometheus.labels" . | nindent 4 }}
+data:
+  alerting-rules.yml: |
+    groups:
+      # ── Service Availability ────────────────────────────────
+      - name: service-availability
+        rules:
+          - alert: SubmissionServiceDown
+            expr: up{pod=~"submission.*"} == 0
+            for: {{ .Values.alerting.rules.serviceDownThreshold }}
+            labels:
+              severity: critical
+              service: submission
+            annotations:
+              summary: "Submission Service is down"
+              description: "Submission Service pod has been unreachable for more than {{ .Values.alerting.rules.serviceDownThreshold }}."
+
+          - alert: CatalogServiceDown
+            expr: up{pod=~"catalog.*"} == 0
+            for: {{ .Values.alerting.rules.serviceDownThreshold }}
+            labels:
+              severity: critical
+              service: catalog
+            annotations:
+              summary: "Catalog Service is down"
+              description: "Catalog Service pod has been unreachable for more than {{ .Values.alerting.rules.serviceDownThreshold }}."
+
+      # ── Error Rate ──────────────────────────────────────────
+      - name: error-rate
+        rules:
+          - alert: SubmissionHighErrorRate
+            expr: |
+              (
+                rate(http_server_requests_seconds_count{status=~"5..",pod=~"submission.*"}[5m])
+                /
+                rate(http_server_requests_seconds_count{pod=~"submission.*"}[5m])
+              ) > {{ .Values.alerting.rules.errorRateThreshold }}
+            for: 2m
+            labels:
+              severity: warning
+              service: submission
+            annotations:
+              summary: "Submission Service high error rate"
+              description: "Submission Service 5xx error rate is above {{ .Values.alerting.rules.errorRateThreshold | mul 100 }}%."
+
+          - alert: CatalogHighErrorRate
+            expr: |
+              (
+                rate(catalog_requests_total{status=~"5.."}[5m])
+                /
+                rate(catalog_requests_total[5m])
+              ) > {{ .Values.alerting.rules.errorRateThreshold }}
+            for: 2m
+            labels:
+              severity: warning
+              service: catalog
+            annotations:
+              summary: "Catalog Service high error rate"
+              description: "Catalog Service 5xx error rate is above {{ .Values.alerting.rules.errorRateThreshold | mul 100 }}%."
+
+      # ── Latency ─────────────────────────────────────────────
+      - name: latency
+        rules:
+          - alert: SubmissionHighLatency
+            expr: |
+              histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{pod=~"submission.*"}[5m]))
+              > {{ .Values.alerting.rules.latencyThreshold }}
+            for: 3m
+            labels:
+              severity: warning
+              service: submission
+            annotations:
+              summary: "Submission Service high P95 latency"
+              description: "Submission Service P95 latency is above {{ .Values.alerting.rules.latencyThreshold }}s."
+
+          - alert: CatalogHighLatency
+            expr: |
+              histogram_quantile(0.95, rate(catalog_request_latency_seconds_bucket[5m]))
+              > {{ .Values.alerting.rules.latencyThreshold }}
+            for: 3m
+            labels:
+              severity: warning
+              service: catalog
+            annotations:
+              summary: "Catalog Service high P95 latency"
+              description: "Catalog Service P95 latency is above {{ .Values.alerting.rules.latencyThreshold }}s."
+
+      # ── Circuit Breaker ─────────────────────────────────────
+      {{- if .Values.alerting.rules.circuitBreakerAlertEnabled }}
+      - name: circuit-breaker
+        rules:
+          - alert: CircuitBreakerOpen
+            expr: catalog_circuit_breaker_state == 1
+            for: 30s
+            labels:
+              severity: critical
+              service: catalog
+            annotations:
+              summary: "Circuit Breaker is OPEN"
+              description: "Catalog Service circuit breaker has been OPEN for 30s — upstream service (Submission) may be unavailable."
+
+          - alert: CircuitBreakerHalfOpen
+            expr: catalog_circuit_breaker_state == 2
+            for: 10s
+            labels:
+              severity: warning
+              service: catalog
+            annotations:
+              summary: "Circuit Breaker is HALF_OPEN"
+              description: "Catalog Service circuit breaker is in HALF_OPEN state — testing upstream recovery."
+      {{- end }}
+
+      # ── Kafka ───────────────────────────────────────────────
+      - name: kafka
+        rules:
+          - alert: KafkaConsumerStopped
+            expr: rate(catalog_kafka_events_consumed_total[5m]) == 0
+            for: 5m
+            labels:
+              severity: warning
+              service: catalog
+            annotations:
+              summary: "Kafka consumer stopped consuming"
+              description: "No Kafka events consumed by Catalog Service for 5 minutes. Kafka may be down or consumer disconnected."
+
+      # ── Infrastructure ──────────────────────────────────────
+      - name: infrastructure
+        rules:
+          - alert: PostgresPrimaryDown
+            expr: up{pod=~"postgres-primary.*"} == 0
+            for: 1m
+            labels:
+              severity: critical
+              service: postgres
+            annotations:
+              summary: "PostgreSQL Primary is down"
+              description: "PostgreSQL Primary database pod is unreachable."
+
+          - alert: PostgresCatalogDown
+            expr: up{pod=~"postgres-catalog.*"} == 0
+            for: 1m
+            labels:
+              severity: critical
+              service: postgres
+            annotations:
+              summary: "PostgreSQL Catalog DB is down"
+              description: "PostgreSQL Catalog database pod is unreachable."
+{{- end }}

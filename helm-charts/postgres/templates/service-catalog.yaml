@@ -1,0 +1,18 @@
+{{- if .Values.catalog.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "postgres.fullname" . }}-catalog
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+    component: catalog
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.catalog.port }}
+      targetPort: postgres
+      protocol: TCP
+      name: postgres
+  selector:
+    {{- include "postgres.catalogSelectorLabels" . | nindent 4 }}
+{{- end }}

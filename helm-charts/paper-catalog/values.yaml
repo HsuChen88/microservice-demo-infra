@@ -1,0 +1,84 @@
+# -- Default values for paper-catalog Helm chart --
+
+replicaCount: 1
+
+# Override the full name of resources (used for Service name, Deployment name, etc.)
+# Must match Istio VirtualService destination host
+fullnameOverride: "catalog-service"
+
+image:
+  repository: paper-catalog
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Image pull secrets for private registries (e.g. GHCR)
+imagePullSecrets: []
+  # - name: ghcr-secret
+
+service:
+  type: ClusterIP
+  port: 8082
+
+# Environment variables injected into the container
+env:
+  DB_HOST: postgres-catalog
+  DB_PORT: "5432"
+  DB_NAME: catalog_db
+  DB_USER: postgres
+  DB_PASSWORD: postgres
+  KAFKA_BOOTSTRAP: kafka:9092
+  KAFKA_TOPIC: paper-events
+  KAFKA_GROUP_ID: catalog-consumer-group
+  SUBMISSION_SERVICE_URL: http://submission-service:8081
+
+# Pod annotations (Prometheus scrape, Istio, etc.)
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8082"
+  prometheus.io/path: "/metrics"
+
+# Resource requests and limits
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# ServiceAccount
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# Horizontal Pod Autoscaler
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  # maxUnavailable: 1
+
+# Probes
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  failureThreshold: 5
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  failureThreshold: 3

@@ -1,0 +1,43 @@
+# -- Dev environment overrides --
+# 1 replica, minimal resources, relaxed probes
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/hsuchen88/paper-catalog
+  tag: dev
+  pullPolicy: IfNotPresent
+
+# Required when GHCR repo is private
+imagePullSecrets:
+  - name: ghcr-secret
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+
+podDisruptionBudget:
+  enabled: false
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 15
+  failureThreshold: 10
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 5

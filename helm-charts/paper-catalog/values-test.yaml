@@ -1,0 +1,24 @@
+# -- Test environment overrides --
+# 2 replicas, moderate resources, standard probes
+
+replicaCount: 2
+
+image:
+  repository: paper-catalog
+  tag: test
+  pullPolicy: Always
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1

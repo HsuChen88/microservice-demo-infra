@@ -1,0 +1,59 @@
+image:
+  repository: postgres
+  tag: "16"
+  pullPolicy: IfNotPresent
+
+primary:
+  enabled: true
+  port: 5432
+  database: submission_db
+  user: postgres
+  password: postgres
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+
+catalog:
+  enabled: true
+  # Use port 5432 (same as primary) — each is a separate Service/Pod so no conflict
+  port: 5432
+  database: catalog_db
+  user: postgres
+  password: postgres
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+
+# Init SQL scripts (embedded in ConfigMap, mounted to /docker-entrypoint-initdb.d/)
+initSQL:
+  primary: |
+    CREATE TABLE IF NOT EXISTS papers (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        title VARCHAR(500) NOT NULL,
+        author VARCHAR(300) NOT NULL,
+        abstract_text TEXT,
+        journal VARCHAR(300),
+        status VARCHAR(50) DEFAULT 'SUBMITTED',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  catalog: |
+    CREATE TABLE IF NOT EXISTS catalog_papers (
+        id UUID PRIMARY KEY,
+        title VARCHAR(500) NOT NULL,
+        author VARCHAR(300) NOT NULL,
+        abstract_text TEXT,
+        status VARCHAR(50),
+        created_at TIMESTAMP,
+        synced_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi

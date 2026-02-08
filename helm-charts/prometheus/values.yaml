@@ -1,0 +1,39 @@
+image:
+  repository: prom/prometheus
+  tag: "v2.51.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 9090
+
+persistence:
+  enabled: false
+  size: 10Gi
+  storageClass: ""
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Prometheus config
+config:
+  scrapeInterval: 15s
+  evaluationInterval: 15s
+
+# Alerting rules
+alerting:
+  enabled: true
+  rules:
+    # Service availability
+    serviceDownThreshold: 1m
+    # Error rate threshold (percentage)
+    errorRateThreshold: 0.05
+    # Latency threshold (seconds, p95)
+    latencyThreshold: 2
+    # Circuit breaker alert
+    circuitBreakerAlertEnabled: true

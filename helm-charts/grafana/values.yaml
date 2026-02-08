@@ -1,0 +1,26 @@
+image:
+  repository: grafana/grafana
+  tag: "10.4.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+
+admin:
+  user: admin
+  password: admin
+
+# Datasources (auto-configured)
+datasource:
+  prometheusUrl: http://prometheus:9090
+  lokiUrl: http://loki:3100
+  lokiEnabled: true
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi

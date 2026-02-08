@@ -1,0 +1,34 @@
+gateway:
+  name: paper-demo-gateway
+  namespace: paper-demo
+  selector:
+    istio: ingressgateway
+  port: 80
+  protocol: HTTP
+  hosts:
+    - "*"
+
+virtualService:
+  name: paper-demo-vs
+  namespace: paper-demo
+  hosts:
+    - "*"
+  routes:
+    - match:
+        uri:
+          prefix: /api/v1/submissions
+      destination:
+        host: submission-service
+        port: 8081
+    - match:
+        uri:
+          prefix: /api/internal
+      destination:
+        host: submission-service
+        port: 8081
+    - match:
+        uri:
+          prefix: /api/v1/catalog
+      destination:
+        host: catalog-service
+        port: 8082

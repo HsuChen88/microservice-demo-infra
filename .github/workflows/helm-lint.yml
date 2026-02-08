@@ -1,0 +1,80 @@
+# =============================================================
+# Helm Chart Linting for infra repo
+# Triggers: push/PR to main/develop on helm-charts/** changes
+# Lints all Helm charts to ensure valid templates
+# =============================================================
+name: "Helm Lint"
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "helm-charts/**"
+      - ".github/workflows/helm-lint.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "helm-charts/**"
+  workflow_dispatch:
+
+jobs:
+  helm-lint:
+    name: "Lint All Charts"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: "v3.14.0"
+
+      - name: Lint paper-submission chart
+        run: |
+          helm lint helm-charts/paper-submission
+          helm lint helm-charts/paper-submission -f helm-charts/paper-submission/values-dev.yaml
+          helm lint helm-charts/paper-submission -f helm-charts/paper-submission/values-prod.yaml
+
+      - name: Lint paper-catalog chart
+        run: |
+          helm lint helm-charts/paper-catalog
+          helm lint helm-charts/paper-catalog -f helm-charts/paper-catalog/values-dev.yaml
+          helm lint helm-charts/paper-catalog -f helm-charts/paper-catalog/values-prod.yaml
+
+      - name: Lint postgres chart
+        run: helm lint helm-charts/postgres
+
+      - name: Lint kafka chart
+        run: helm lint helm-charts/kafka
+
+      - name: Lint istio-gateway chart
+        run: helm lint helm-charts/istio-gateway
+
+      - name: Lint prometheus chart
+        run: helm lint helm-charts/prometheus
+
+      - name: Lint grafana chart
+        run: helm lint helm-charts/grafana
+
+      - name: Lint loki chart
+        run: helm lint helm-charts/loki
+
+      - name: Lint promtail chart
+        run: helm lint helm-charts/promtail
+
+      - name: Lint argocd-apps chart
+        run: helm lint helm-charts/argocd-apps
+
+      - name: Template validation (dev)
+        run: |
+          echo "--- Submission (dev) ---"
+          helm template test helm-charts/paper-submission -f helm-charts/paper-submission/values-dev.yaml > /dev/null
+          echo "--- Catalog (dev) ---"
+          helm template test helm-charts/paper-catalog -f helm-charts/paper-catalog/values-dev.yaml > /dev/null
+          echo "--- Postgres ---"
+          helm template test helm-charts/postgres > /dev/null
+          echo "--- Kafka ---"
+          helm template test helm-charts/kafka > /dev/null
+          echo "All templates rendered successfully"

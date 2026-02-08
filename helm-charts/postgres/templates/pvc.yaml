@@ -1,0 +1,41 @@
+{{- if .Values.primary.enabled }}
+{{- if .Values.primary.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "postgres.fullname" . }}-primary-pvc
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+    component: primary
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.primary.persistence.size }}
+  {{- if .Values.primary.persistence.storageClass }}
+  storageClassName: {{ .Values.primary.persistence.storageClass }}
+  {{- end }}
+{{- end }}
+{{- end }}
+---
+{{- if .Values.catalog.enabled }}
+{{- if .Values.catalog.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "postgres.fullname" . }}-catalog-pvc
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+    component: catalog
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.catalog.persistence.size }}
+  {{- if .Values.catalog.persistence.storageClass }}
+  storageClassName: {{ .Values.catalog.persistence.storageClass }}
+  {{- end }}
+{{- end }}
+{{- end }}

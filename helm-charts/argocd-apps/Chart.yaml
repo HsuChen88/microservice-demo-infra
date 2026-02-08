@@ -1,0 +1,6 @@
+apiVersion: v2
+name: argocd-apps
+description: ArgoCD Application manifests for Paper Demo services
+type: application
+version: 0.1.0
+appVersion: "2.13.0"

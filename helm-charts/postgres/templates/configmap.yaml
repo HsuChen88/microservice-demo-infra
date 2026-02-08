@@ -1,0 +1,25 @@
+{{- if .Values.primary.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "postgres.fullname" . }}-primary-init
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+    component: primary
+data:
+  init.sql: |
+    {{- .Values.initSQL.primary | nindent 4 }}
+{{- end }}
+---
+{{- if .Values.catalog.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "postgres.fullname" . }}-catalog-init
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+    component: catalog
+data:
+  init.sql: |
+    {{- .Values.initSQL.catalog | nindent 4 }}
+{{- end }}

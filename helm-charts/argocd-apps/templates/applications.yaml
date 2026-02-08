@@ -1,0 +1,47 @@
+# ============================================================
+# ArgoCD Application manifests — one per service per environment
+# Generated from values.yaml environments[] × services{}
+# ============================================================
+{{- range $env := .Values.environments }}
+{{- range $svcName, $svc := $.Values.services }}
+{{- if $svc.enabled }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ $env.name }}-{{ $svcName }}
+  namespace: argocd
+  labels:
+    {{- include "argocd-apps.labels" $ | nindent 4 }}
+    environment: {{ $env.name }}
+    service: {{ $svcName }}
+  {{- if $env.autoSync }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  {{- end }}
+spec:
+  project: {{ $.Values.project }}
+  source:
+    repoURL: {{ $.Values.repoURL }}
+    targetRevision: {{ $.Values.targetRevision }}
+    path: {{ $svc.chartPath }}
+    helm:
+      {{- if $svc.hasEnvValues }}
+      valueFiles:
+        - values-{{ $env.name }}.yaml
+      {{- end }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ $env.namespace }}
+  syncPolicy:
+    {{- if $env.autoSync }}
+    automated:
+      selfHeal: {{ $env.selfHeal }}
+      prune: {{ $env.prune }}
+    {{- end }}
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+{{- end }}
+{{- end }}
+{{- end }}

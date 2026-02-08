@@ -1,0 +1,42 @@
+# ============================================================
+# ArgoCD AppProject for Paper Demo
+# Restricts which repos, clusters, and namespaces can be used
+# ============================================================
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: paper-demo
+  namespace: argocd
+  labels:
+    {{- include "argocd-apps.labels" . | nindent 4 }}
+spec:
+  description: Paper Demo Microservice Project
+  # Allow deploying from our repo
+  sourceRepos:
+    - {{ .Values.repoURL | quote }}
+  # Allow deploying to these namespaces
+  destinations:
+    {{- range .Values.environments }}
+    - namespace: {{ .namespace }}
+      server: https://kubernetes.default.svc
+    {{- end }}
+  # Allow all cluster-scoped resources needed by the charts
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+  # Allow common namespaced resources
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: "*"
+    - group: apps
+      kind: "*"
+    - group: networking.istio.io
+      kind: "*"
+    - group: autoscaling
+      kind: "*"
+    - group: policy
+      kind: "*"
