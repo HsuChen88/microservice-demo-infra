@@ -44,6 +44,10 @@ services:
     enabled: true
     chartPath: infra/helm-charts/paper-catalog
     hasEnvValues: true
+  frontend:
+    enabled: true
+    chartPath: infra/helm-charts/paper-frontend
+    hasEnvValues: true
   istio-gateway:
     enabled: true
     chartPath: infra/helm-charts/istio-gateway

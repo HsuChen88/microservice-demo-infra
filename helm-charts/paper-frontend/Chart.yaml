@@ -1,0 +1,6 @@
+apiVersion: v2
+name: paper-frontend
+description: A Helm chart for Paper Frontend (nginx static site)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

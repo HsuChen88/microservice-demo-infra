@@ -32,3 +32,9 @@ virtualService:
       destination:
         host: catalog-service
         port: 8082
+    - match:
+        uri:
+          prefix: /
+      destination:
+        host: frontend-service
+        port: 8080
