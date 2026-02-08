@@ -1,18 +1,18 @@
 # =============================================================
 # Helm Chart Linting for infra repo
-# Triggers: push/PR to main/develop on helm-charts/** changes
+# Triggers: push/PR to master/develop on helm-charts/** changes
 # Lints all Helm charts to ensure valid templates
 # =============================================================
 name: "Helm Lint"
 
 on:
   push:
-    branches: [main, develop]
+    branches: [master, develop]
     paths:
       - "helm-charts/**"
       - ".github/workflows/helm-lint.yml"
   pull_request:
-    branches: [main, develop]
+    branches: [master, develop]
     paths:
       - "helm-charts/**"
   workflow_dispatch:
