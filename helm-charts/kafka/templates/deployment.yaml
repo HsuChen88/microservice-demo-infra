@@ -14,6 +14,8 @@ spec:
     metadata:
       labels:
         {{- include "kafka.selectorLabels" . | nindent 8 }}
+      annotations:
+        sidecar.istio.io/inject: "false"
     spec:
       containers:
         - name: kafka
@@ -51,30 +53,28 @@ spec:
               value: {{ .Values.env.KAFKA_TRANSACTION_STATE_LOG_MIN_ISR | quote }}
             - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
               value: {{ .Values.env.KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR | quote }}
+            - name: KAFKA_LOG_DIRS
+              value: {{ .Values.env.KAFKA_LOG_DIRS | quote }}
+            - name: CLUSTER_ID
+              value: {{ .Values.env.CLUSTER_ID | quote }}
           volumeMounts:
             - name: data
               mountPath: /opt/kafka/data
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+            tcpSocket:
+              port: broker
             initialDelaySeconds: 90
             periodSeconds: 30
-            timeoutSeconds: 10
+            timeoutSeconds: 5
             failureThreshold: 5
           readinessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+            tcpSocket:
+              port: broker
             initialDelaySeconds: 45
             periodSeconds: 15
-            timeoutSeconds: 10
+            timeoutSeconds: 5
             failureThreshold: 5
   volumeClaimTemplates:
     {{- if .Values.persistence.enabled }}
