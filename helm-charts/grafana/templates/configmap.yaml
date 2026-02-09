@@ -185,15 +185,15 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
           "targets": [
             {
-              "expr": "histogram_quantile(0.50, rate(catalog_request_latency_seconds_bucket{namespace=~\"$namespace\"}[5m]))",
+              "expr": "histogram_quantile(0.50, rate(catalog_request_duration_seconds_bucket{namespace=~\"$namespace\"}[5m]))",
               "legendFormat": "catalog p50"
             },
             {
-              "expr": "histogram_quantile(0.95, rate(catalog_request_latency_seconds_bucket{namespace=~\"$namespace\"}[5m]))",
+              "expr": "histogram_quantile(0.95, rate(catalog_request_duration_seconds_bucket{namespace=~\"$namespace\"}[5m]))",
               "legendFormat": "catalog p95"
             },
             {
-              "expr": "histogram_quantile(0.99, rate(catalog_request_latency_seconds_bucket{namespace=~\"$namespace\"}[5m]))",
+              "expr": "histogram_quantile(0.99, rate(catalog_request_duration_seconds_bucket{namespace=~\"$namespace\"}[5m]))",
               "legendFormat": "catalog p99"
             },
             {
@@ -220,7 +220,7 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
           "targets": [
             {
-              "expr": "rate(catalog_kafka_events_consumed_total{namespace=~\"$namespace\"}[5m])",
+              "expr": "rate(catalog_kafka_events_total{namespace=~\"$namespace\"}[5m])",
               "legendFormat": "{{`{{status}}`}} events/s"
             }
           ],
@@ -232,11 +232,11 @@ data:
           "gridPos": { "h": 8, "w": 6, "x": 12, "y": 20 },
           "targets": [
             {
-              "expr": "catalog_kafka_events_consumed_total{namespace=~\"$namespace\",status=\"success\"}",
+              "expr": "catalog_kafka_events_total{namespace=~\"$namespace\",status=\"success\"}",
               "legendFormat": "success"
             },
             {
-              "expr": "catalog_kafka_events_consumed_total{namespace=~\"$namespace\",status=\"error\"}",
+              "expr": "catalog_kafka_events_total{namespace=~\"$namespace\",status=\"error\"}",
               "legendFormat": "error"
             }
           ],

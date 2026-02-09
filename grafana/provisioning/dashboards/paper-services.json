@@ -2,16 +2,16 @@
   "title": "Paper Services Dashboard",
   "tags": ["microservices", "paper"],
   "timezone": "browser",
-  "schemaVersion": 16,
-  "version": 1,
+  "schemaVersion": 39,
+  "version": 2,
   "refresh": "10s",
   "panels": [
     {
       "id": 1,
       "title": "Request Rate - Submission Service",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
-      "datasource": "Prometheus",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "targets": [
         {
           "expr": "rate(http_server_requests_seconds_count{job=\"submission-service\"}[5m])",
@@ -19,17 +19,24 @@
           "refId": "A"
         }
       ],
-      "yaxes": [
-        {"format": "reqps", "label": "Requests/sec"},
-        {"format": "short"}
-      ]
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 10,
+            "showPoints": "auto"
+          }
+        }
+      }
     },
     {
       "id": 2,
       "title": "Request Rate - Catalog Service",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
-      "datasource": "Prometheus",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "targets": [
         {
           "expr": "rate(catalog_requests_total{job=\"catalog-service\"}[5m])",
@@ -37,17 +44,24 @@
           "refId": "A"
         }
       ],
-      "yaxes": [
-        {"format": "reqps", "label": "Requests/sec"},
-        {"format": "short"}
-      ]
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 10,
+            "showPoints": "auto"
+          }
+        }
+      }
     },
     {
       "id": 3,
       "title": "Error Rate",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
-      "datasource": "Prometheus",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "targets": [
         {
           "expr": "rate(http_server_requests_seconds_count{job=\"submission-service\",status=~\"5..\"}[5m])",
@@ -60,17 +74,24 @@
           "refId": "B"
         }
       ],
-      "yaxes": [
-        {"format": "reqps", "label": "Errors/sec"},
-        {"format": "short"}
-      ]
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 10,
+            "showPoints": "auto"
+          }
+        }
+      }
     },
     {
       "id": 4,
       "title": "Request Latency (p50 / p95)",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
-      "datasource": "Prometheus",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "targets": [
         {
           "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{job=\"submission-service\"}[5m]))",
@@ -93,17 +114,24 @@
           "refId": "D"
         }
       ],
-      "yaxes": [
-        {"format": "s", "label": "Latency"},
-        {"format": "short"}
-      ]
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 10,
+            "showPoints": "auto"
+          }
+        }
+      }
     },
     {
       "id": 5,
       "title": "Submission Service Status",
       "type": "stat",
       "gridPos": {"h": 4, "w": 6, "x": 0, "y": 16},
-      "datasource": "Prometheus",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "targets": [
         {
           "expr": "up{job=\"submission-service\"}",
@@ -127,7 +155,7 @@
       "title": "Catalog Service Status",
       "type": "stat",
       "gridPos": {"h": 4, "w": 6, "x": 6, "y": 16},
-      "datasource": "Prometheus",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "targets": [
         {
           "expr": "up{job=\"catalog-service\"}",
@@ -151,7 +179,7 @@
       "title": "Circuit Breaker State",
       "type": "stat",
       "gridPos": {"h": 4, "w": 6, "x": 12, "y": 16},
-      "datasource": "Prometheus",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "targets": [
         {
           "expr": "catalog_circuit_breaker_state{job=\"catalog-service\"}",
@@ -173,9 +201,9 @@
     {
       "id": 8,
       "title": "Kafka Events Consumed",
-      "type": "graph",
+      "type": "timeseries",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
-      "datasource": "Prometheus",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
       "targets": [
         {
           "expr": "rate(catalog_kafka_events_total{job=\"catalog-service\"}[5m])",
@@ -183,10 +211,17 @@
           "refId": "A"
         }
       ],
-      "yaxes": [
-        {"format": "ops", "label": "Events/sec"},
-        {"format": "short"}
-      ]
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 10,
+            "showPoints": "auto"
+          }
+        }
+      }
     }
   ],
   "time": {
