@@ -58,6 +58,9 @@ jobs:
       - name: Lint grafana chart
         run: helm lint helm-charts/grafana
 
+      - name: Add Grafana Helm Repo
+        run: helm repo add grafana https://grafana.github.io/helm-charts
+
       - name: Build loki-distributed dependencies
         run: helm dependency build helm-charts/loki-distributed
 
