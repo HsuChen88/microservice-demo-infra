@@ -13,8 +13,8 @@ admin:
 
 # Datasources (auto-configured)
 datasource:
-  prometheusUrl: http://dev-prometheus:9090
-  lokiUrl: http://dev-loki:3100
+  prometheusUrl: http://prometheus:9090
+  lokiUrl: http://loki-distributed-gateway
   lokiEnabled: true
 
 resources:

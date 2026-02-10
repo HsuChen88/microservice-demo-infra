@@ -58,8 +58,11 @@ jobs:
       - name: Lint grafana chart
         run: helm lint helm-charts/grafana
 
-      - name: Lint loki chart
-        run: helm lint helm-charts/loki
+      - name: Build loki-distributed dependencies
+        run: helm dependency build helm-charts/loki-distributed
+
+      - name: Lint loki-distributed chart
+        run: helm lint helm-charts/loki-distributed
 
       - name: Lint promtail chart
         run: helm lint helm-charts/promtail

@@ -15,8 +15,8 @@ environments:
     autoSync: true
     selfHeal: true
     prune: true
-  - name: test
-    namespace: test
+  - name: qa
+    namespace: qa
     autoSync: false
     selfHeal: false
     prune: false
@@ -60,9 +60,9 @@ services:
     enabled: true
     chartPath: helm-charts/grafana
     hasEnvValues: false
-  loki:
+  loki-distributed:
     enabled: true
-    chartPath: helm-charts/loki
+    chartPath: helm-charts/loki-distributed
     hasEnvValues: false
   promtail:
     enabled: true

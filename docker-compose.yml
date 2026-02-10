@@ -133,6 +133,31 @@ services:
     networks:
       - paper-demo
 
+  loki:
+    image: grafana/loki:3.6.0
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/config.yaml
+    command: -config.file=/etc/loki/config.yaml
+    networks:
+      - paper-demo
+
+  promtail:
+    image: grafana/promtail:3.6.0
+    container_name: promtail
+    volumes:
+      - ./loki/promtail-config.yaml:/etc/promtail/config.yaml
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log:/var/log:ro
+    command: -config.file=/etc/promtail/config.yaml
+    depends_on:
+      - loki
+    networks:
+      - paper-demo
+
   prometheus:
     image: prom/prometheus:v2.51.0
     container_name: prometheus
@@ -161,6 +186,7 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       - prometheus
+      - loki
     networks:
       - paper-demo
 
