@@ -1,11 +1,11 @@
-# -- Test environment overrides --
+# -- QA environment overrides --
 # 2 replicas, moderate resources, standard probes
 
 replicaCount: 2
 
 image:
   repository: paper-submission
-  tag: test
+  tag: qa
   pullPolicy: Always
 
 resources:

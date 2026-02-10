@@ -18,23 +18,23 @@ virtualService:
         uri:
           prefix: /api/v1/submissions
       destination:
-        host: dev-submission
+        host: submission
         port: 8081
     - match:
         uri:
           prefix: /api/internal
       destination:
-        host: dev-submission
+        host: submission
         port: 8081
     - match:
         uri:
           prefix: /api/v1/catalog
       destination:
-        host: dev-catalog
+        host: catalog
         port: 8082
     - match:
         uri:
           prefix: /
       destination:
-        host: dev-frontend
+        host: frontend
         port: 8080

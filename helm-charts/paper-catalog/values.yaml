@@ -20,15 +20,15 @@ service:
 
 # Environment variables injected into the container
 env:
-  DB_HOST: dev-postgres-catalog
+  DB_HOST: postgres-catalog
   DB_PORT: "5432"
   DB_NAME: catalog_db
   DB_USER: postgres
   DB_PASSWORD: postgres
-  KAFKA_BOOTSTRAP: dev-kafka:9092
+  KAFKA_BOOTSTRAP: kafka:9092
   KAFKA_TOPIC: paper-events
   KAFKA_GROUP_ID: catalog-consumer-group
-  SUBMISSION_SERVICE_URL: http://dev-submission:8081
+  SUBMISSION_SERVICE_URL: http://submission:8081
 
 # Pod annotations (Prometheus scrape, Istio, etc.)
 podAnnotations:

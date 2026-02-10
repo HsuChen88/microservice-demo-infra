@@ -286,7 +286,7 @@ data:
           "gridPos": { "h": 10, "w": 24, "x": 0, "y": 34 },
           "targets": [
             {
-              "expr": "{namespace=~\"$namespace\",app=~\"paper-submission|paper-catalog|submission|catalog|dev-submission|dev-catalog\"}",
+              "expr": "{namespace=~\"$namespace\",app=~\"paper-submission|paper-catalog|submission|catalog\"}",
               "legendFormat": ""
             }
           ],
@@ -312,7 +312,7 @@ data:
             "current": { "text": "dev", "value": "dev" },
             "options": [
               { "text": "dev", "value": "dev", "selected": true },
-              { "text": "test", "value": "test", "selected": false },
+              { "text": "qa", "value": "qa", "selected": false },
               { "text": "prod", "value": "prod", "selected": false }
             ]
           }
