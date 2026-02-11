@@ -24,6 +24,10 @@ data:
         pipeline_stages:
           - cri: {}
         relabel_configs:
+          # Required for daemonset mode: map pod node -> __host__.
+          # Promtail keeps only targets whose __host__ == $HOSTNAME.
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            target_label: __host__
           # Use pod namespace as label
           - source_labels: [__meta_kubernetes_namespace]
             target_label: namespace

@@ -25,6 +25,11 @@ spec:
         - name: promtail
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
           args:
             - -config.file=/etc/promtail/promtail.yaml
           ports:
