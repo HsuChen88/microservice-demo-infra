@@ -64,6 +64,13 @@ podDisruptionBudget:
   # maxUnavailable: 1
 
 # Probes
+startupProbe:
+  httpGet:
+    path: /actuator/health
+    port: http
+  periodSeconds: 5
+  failureThreshold: 30
+
 livenessProbe:
   httpGet:
     path: /actuator/health
